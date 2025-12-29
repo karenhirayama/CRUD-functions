@@ -241,6 +241,10 @@ VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
 MIT
 
+## Questions?
+
+If you have any questions, ask me in my LinkedIn: https://www.linkedin.com/in/karenhirayama/
+
 ---
 
 Made with ❤️ using React, TypeScript, and Firebase
