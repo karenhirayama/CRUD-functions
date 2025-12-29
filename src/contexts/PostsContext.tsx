@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { useState, useMemo } from "react";
 
 import {
   useGetPostsQuery,
@@ -7,28 +7,8 @@ import {
   useDeletePostMutation,
 } from "../service/posts/postService";
 
+import { PostsContext, type PostsContextType } from "./PostsContext";
 import type { Post } from "../types";
-
-interface PostsContextType {
-  posts: Post[];
-  localPosts: Post[];
-  isLoading: boolean;
-  postToDelete: Post | null;
-  postToEdit: Post | null;
-  setPostToDelete: (post: Post | null) => void;
-  setPostToEdit: (post: Post | null) => void;
-  handleCreatePost: (title: string, content: string) => void;
-  handleDeleteConfirm: () => void;
-  handleEditSave: (title: string, content: string) => void;
-  handleLike: (post: Post) => void;
-  createPostMutation: ReturnType<typeof useCreatePostMutation>;
-  updatePostMutation: ReturnType<typeof useUpdatePostMutation>;
-  deletePostMutation: ReturnType<typeof useDeletePostMutation>;
-}
-
-export const PostsContext = createContext<PostsContextType | undefined>(
-  undefined
-);
 
 interface PostsProviderProps {
   children: React.ReactNode;
@@ -45,16 +25,16 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
   const updatePostMutation = useUpdatePostMutation();
   const deletePostMutation = useDeletePostMutation();
 
-  useEffect(() => {
-    if (posts && posts.length > 0) {
-      const postsWithLikes = posts.map((post) => ({
+  const initialPosts = useMemo(() => {
+    if (posts && posts.length > 0 && localPosts.length === 0) {
+      return posts.map((post) => ({
         ...post,
         likes: post.likes ?? 0,
         likedBy: post.likedBy ?? [],
       }));
-      setLocalPosts(postsWithLikes);
     }
-  }, [posts]);
+    return localPosts;
+  }, [posts, localPosts]);
 
   const handleCreatePost = (title: string, content: string) => {
     createPostMutation.mutate(
@@ -62,7 +42,7 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
       {
         onSuccess: (newPost) => {
           const postWithLikes = { ...newPost, likes: 0, likedBy: [] };
-          setLocalPosts([postWithLikes, ...localPosts]);
+          setLocalPosts([postWithLikes, ...initialPosts]);
         },
       }
     );
@@ -73,7 +53,7 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
 
     deletePostMutation.mutate(postToDelete.id, {
       onSuccess: () => {
-        setLocalPosts(localPosts.filter((p) => p.id !== postToDelete.id));
+        setLocalPosts(initialPosts.filter((p) => p.id !== postToDelete.id));
         setPostToDelete(null);
       },
     });
@@ -87,7 +67,7 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
       {
         onSuccess: (updatedPost) => {
           setLocalPosts(
-            localPosts.map((p) =>
+            initialPosts.map((p) =>
               p.id === updatedPost.id
                 ? { ...updatedPost, likes: p.likes, likedBy: p.likedBy }
                 : p
@@ -102,7 +82,7 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
   const handleLike = (post: Post) => {
     const isLiked = post.likedBy?.includes(username);
 
-    const updatedPosts = localPosts.map((p) => {
+    const updatedPosts = initialPosts.map((p) => {
       if (p.id === post.id) {
         if (isLiked) {
           return {
@@ -125,7 +105,7 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
 
   const value: PostsContextType = {
     posts,
-    localPosts,
+    localPosts: initialPosts,
     isLoading,
     postToDelete,
     postToEdit,
@@ -137,20 +117,9 @@ export const PostsProvider = ({ children, username }: PostsProviderProps) => {
     handleLike,
     createPostMutation,
     updatePostMutation,
-    deletePostMutation,
   };
 
   return (
     <PostsContext.Provider value={value}>{children}</PostsContext.Provider>
   );
-};
-
-export const usePostsContext = () => {
-  const context = useContext(PostsContext);
-
-  if (!context) {
-    throw new Error("usePostsContext must be used within a PostsProvider");
-  }
-
-  return context;
 };

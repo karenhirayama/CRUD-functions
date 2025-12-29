@@ -1,7 +1,7 @@
 import PostItem from "./PostItem";
 
 import type { Post } from "../types";
-import { usePostsContext } from "../contexts/PostsContext";
+import { usePostsContext } from "../contexts/usePostsContext";
 
 interface PostsProps {
   posts: Post[];

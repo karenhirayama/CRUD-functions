@@ -4,7 +4,8 @@ import FilterPosts from "../components/FilterPosts";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModal";
 
-import { PostsProvider, usePostsContext } from "../contexts/PostsContext";
+import { PostsProvider } from "../contexts/PostsContext";
+import { usePostsContext } from "../contexts/usePostsContext";
 
 import { useFilterPosts } from "../hooks/useFilterPosts";
 
