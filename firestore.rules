@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Posts collection
+    match /posts/{postId} {
+      // Allow anyone to read posts
+      allow read: if true;
+      
+      // Allow authenticated users to create posts
+      allow create: if request.auth != null
+                    && request.resource.data.username is string
+                    && request.resource.data.title is string
+                    && request.resource.data.content is string;
+      
+      // Allow post owner to update their own posts
+      allow update: if request.auth != null
+                    && request.auth.token.name == resource.data.username;
+      
+      // Allow post owner to delete their own posts
+      allow delete: if request.auth != null
+                    && request.auth.token.name == resource.data.username;
+    }
+  }
+}

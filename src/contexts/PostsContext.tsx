@@ -5,7 +5,7 @@ import {
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
-} from "../service/posts/services";
+} from "../service/posts/postService";
 
 import type { Post } from "../types";
 
