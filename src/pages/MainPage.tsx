@@ -4,10 +4,10 @@ import FilterPosts from "../components/FilterPosts";
 import DeleteModal from "../components/DeleteModal";
 import EditModal from "../components/EditModal";
 
-import { PostsProvider } from "../contexts/PostsContext";
-import { usePostsContext } from "../contexts/usePostsContext";
+import { PostsProvider } from "../contexts/PostsContext.tsx";
 
 import { useFilterPosts } from "../hooks/useFilterPosts";
+import { usePostsContext } from "../contexts/usePostsContext";
 
 interface MainPageProps {
   username: string;
